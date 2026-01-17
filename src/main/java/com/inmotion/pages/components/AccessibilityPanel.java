@@ -11,6 +11,7 @@ import java.util.List;
 
 public class AccessibilityPanel extends BasePage {
 
+    // By locators with explicit waits avoid stale element caching from @FindBy/PageFactory.
     private final By languageSelector = By.cssSelector(".uwy-language-selector, [aria-label*='Language']");
     private final By closeButton = By.cssSelector("button[aria-label='Close'], .close-btn, [class*='close']");
     private final By virtualKeyboard = By

@@ -13,6 +13,7 @@ public class CookieComponent extends BasePage {
 
     private static final Logger logger = LoggerFactory.getLogger(CookieComponent.class);
 
+    // By locators with explicit waits avoid stale element caching from @FindBy/PageFactory.
     private final By acceptButton = By.cssSelector(
             "button#onetrust-accept-btn-handler, button[class*='cookie'][class*='accept'], .cc-btn.cc-dismiss");
 

@@ -7,6 +7,7 @@ import org.openqa.selenium.WebElement;
 
 public class FooterComponent extends BasePage {
 
+    // By locators with explicit waits avoid stale element caching from @FindBy/PageFactory.
     private final By facebookLink = By.cssSelector("a[href*='facebook.com']");
     private final By accessibilityTrigger = By.cssSelector("a[class*='accessibility'], button[class*='accessibility']");
     private final By accessibilityLinkText = By.partialLinkText("Accessibility");

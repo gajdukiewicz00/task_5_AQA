@@ -14,6 +14,7 @@ public class HomePage extends BasePage {
     private final FooterComponent footerComponent;
     private final AccessibilityPanel accessibilityPanel;
 
+    // By locators with explicit waits avoid stale element caching from @FindBy/PageFactory.
     private final By resourcesMenu = By.xpath("//*[contains(text(), 'Resources')]");
     private final By compareLink = By.cssSelector("a[href*='compare']");
 
