@@ -4,6 +4,7 @@ import com.inmotion.pages.BasePage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.Select;
 
 import java.util.Arrays;
@@ -11,37 +12,45 @@ import java.util.List;
 
 public class AccessibilityPanel extends BasePage {
 
-    // By locators with explicit waits avoid stale element caching from @FindBy/PageFactory.
-    private final By languageSelector = By.cssSelector(".uwy-language-selector, [aria-label*='Language']");
-    private final By closeButton = By.cssSelector("button[aria-label='Close'], .close-btn, [class*='close']");
-    private final By virtualKeyboard = By
-            .cssSelector(".virtual-keyboard, #virtual-keyboard, [class*='keyboard'], [id*='keyboard'], .uwy-keyboard");
-    private final By body = By.tagName("body");
+    @FindBy(css = ".uwy-language-selector, [aria-label*='Language']")
+    private WebElement languageSelector;
+
+    @FindBy(css = "button[aria-label='Close'], .close-btn, [class*='close']")
+    private WebElement closeButton;
+
+    @FindBy(css = ".virtual-keyboard, #virtual-keyboard, [class*='keyboard'], [id*='keyboard'], .uwy-keyboard")
+    private List<WebElement> virtualKeyboards;
+
+    @FindBy(tagName = "body")
+    private WebElement body;
 
     public AccessibilityPanel(WebDriver driver) {
         super(driver);
     }
 
-    private final By panelContainer = By
-            .cssSelector("#userwayAccessibilityIcon[aria-expanded='true'], .uwy-open, .uwy-widget-open");
-    private final By widgetLanguageSelector = By
-            .cssSelector(".uwy-widget .uwy-language-selector, .uwy-accessibility-widget .uwy-language-selector");
+    @FindBy(css = "#userwayAccessibilityIcon[aria-expanded='true'], .uwy-open, .uwy-widget-open")
+    private List<WebElement> panelContainers;
+
+    @FindBy(css = ".uwy-widget .uwy-language-selector, .uwy-accessibility-widget .uwy-language-selector")
+    private List<WebElement> widgetLanguageSelectors;
+
+    @FindBy(css = ".uwy-widget button[aria-label*='Close'], .uwy-accessibility-widget [class*='close']")
+    private List<WebElement> widgetCloseButtons;
+
+    @FindBy(css = ".uwy-keyboard-close, [aria-label*='close keyboard']")
+    private List<WebElement> keyboardCloseButtons;
 
     public boolean isPanelOpen() {
         try {
-            List<WebElement> panels = driver.findElements(panelContainer);
-            for (WebElement p : panels) {
+            for (WebElement p : panelContainers) {
                 if (p.isDisplayed())
                     return true;
             }
-            List<WebElement> langSelectors = driver.findElements(widgetLanguageSelector);
-            for (WebElement el : langSelectors) {
+            for (WebElement el : widgetLanguageSelectors) {
                 if (el.isDisplayed())
                     return true;
             }
-            List<WebElement> closeButtons = driver.findElements(By.cssSelector(
-                    ".uwy-widget button[aria-label*='Close'], .uwy-accessibility-widget [class*='close']"));
-            for (WebElement el : closeButtons) {
+            for (WebElement el : widgetCloseButtons) {
                 if (el.isDisplayed())
                     return true;
             }
@@ -53,7 +62,7 @@ public class AccessibilityPanel extends BasePage {
 
     public String getSelectedLanguage() {
         try {
-            WebElement element = waits.visibilityOfElementLocated(languageSelector);
+            WebElement element = waits.visibilityOf(languageSelector);
             if (element.getTagName().equalsIgnoreCase("select")) {
                 Select select = new Select(element);
                 return select.getFirstSelectedOption().getText();
@@ -67,7 +76,7 @@ public class AccessibilityPanel extends BasePage {
 
     public void changeLanguage(String language) {
         try {
-            WebElement element = waits.visibilityOfElementLocated(languageSelector);
+            WebElement element = waits.visibilityOf(languageSelector);
             if (element.getTagName().equalsIgnoreCase("select")) {
                 Select select = new Select(element);
                 select.selectByVisibleText(language);
@@ -83,7 +92,7 @@ public class AccessibilityPanel extends BasePage {
     public void toggleContrast() {
         boolean wasEnabled = isContrastEnabled();
         clickAccessibilityOption("Contrast");
-        WebElement bodyElement = driver.findElement(body);
+        WebElement bodyElement = body;
         if (wasEnabled) {
             waits.attributeNotContains(bodyElement, "class", "contrast");
         } else {
@@ -93,7 +102,7 @@ public class AccessibilityPanel extends BasePage {
 
     public void resetSettings() {
         clickAccessibilityOption("Reset");
-        WebElement bodyElement = driver.findElement(body);
+        WebElement bodyElement = body;
         waits.attributeNotContains(bodyElement, "class", "contrast");
     }
 
@@ -142,8 +151,14 @@ public class AccessibilityPanel extends BasePage {
 
     public boolean isVirtualKeyboardVisible() {
         try {
-            waits.visibilityOfElementLocated(virtualKeyboard);
-            return true;
+            return waits.until(driver -> {
+                for (WebElement keyboard : virtualKeyboards) {
+                    if (keyboard.isDisplayed()) {
+                        return true;
+                    }
+                }
+                return false;
+            });
         } catch (Exception e) {
             return false;
         }
@@ -151,9 +166,7 @@ public class AccessibilityPanel extends BasePage {
 
     public void closeVirtualKeyboard() {
         try {
-            By keyboardClose = By.cssSelector(".uwy-keyboard-close, [aria-label*='close keyboard']");
-            List<WebElement> closeButtons = driver.findElements(keyboardClose);
-            for (WebElement btn : closeButtons) {
+            for (WebElement btn : keyboardCloseButtons) {
                 if (btn.isDisplayed()) {
                     btn.click();
                     return;
@@ -169,14 +182,14 @@ public class AccessibilityPanel extends BasePage {
             waits.elementToBeClickable(closeButton).click();
         } catch (Exception e) {
             try {
-                jsUtils.click(driver.findElement(closeButton));
+                jsUtils.click(closeButton);
             } catch (Exception ex) {
             }
         }
     }
 
     public boolean isContrastEnabled() {
-        String classes = driver.findElement(body).getAttribute("class");
+        String classes = body.getAttribute("class");
         return classes != null && classes.contains("contrast");
     }
 }

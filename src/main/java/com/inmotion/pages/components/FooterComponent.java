@@ -1,25 +1,30 @@
 package com.inmotion.pages.components;
 
 import com.inmotion.pages.BasePage;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
 
 public class FooterComponent extends BasePage {
 
-    // By locators with explicit waits avoid stale element caching from @FindBy/PageFactory.
-    private final By facebookLink = By.cssSelector("a[href*='facebook.com']");
-    private final By accessibilityTrigger = By.cssSelector("a[class*='accessibility'], button[class*='accessibility']");
-    private final By accessibilityLinkText = By.partialLinkText("Accessibility");
+    @FindBy(css = "a[href*='facebook.com']")
+    private WebElement facebookLink;
 
-    private final By footerContainer = By.cssSelector("footer, .footer, #footer, [role='contentinfo']");
+    @FindBy(css = "a[class*='accessibility'], button[class*='accessibility']")
+    private WebElement accessibilityTrigger;
+
+    @FindBy(partialLinkText = "Accessibility")
+    private WebElement accessibilityLinkText;
+
+    @FindBy(css = "footer, .footer, #footer, [role='contentinfo']")
+    private WebElement footerContainer;
 
     public FooterComponent(WebDriver driver) {
         super(driver);
     }
 
     public WebElement getFacebookLink() {
-        return waits.visibilityOfElementLocated(facebookLink);
+        return waits.visibilityOf(facebookLink);
     }
 
     public void openAccessibilityPanel() {
@@ -33,7 +38,7 @@ public class FooterComponent extends BasePage {
 
     public boolean isVisible() {
         try {
-            return driver.findElement(footerContainer).isDisplayed();
+            return footerContainer.isDisplayed();
         } catch (Exception e) {
             try {
                 return getFacebookLink().isDisplayed();

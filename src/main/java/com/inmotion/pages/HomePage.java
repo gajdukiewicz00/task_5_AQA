@@ -3,10 +3,10 @@ package com.inmotion.pages;
 import com.inmotion.pages.components.AccessibilityPanel;
 import com.inmotion.pages.components.CookieComponent;
 import com.inmotion.pages.components.FooterComponent;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.FindBy;
 
 public class HomePage extends BasePage {
 
@@ -14,9 +14,11 @@ public class HomePage extends BasePage {
     private final FooterComponent footerComponent;
     private final AccessibilityPanel accessibilityPanel;
 
-    // By locators with explicit waits avoid stale element caching from @FindBy/PageFactory.
-    private final By resourcesMenu = By.xpath("//*[contains(text(), 'Resources')]");
-    private final By compareLink = By.cssSelector("a[href*='compare']");
+    @FindBy(xpath = "//*[contains(text(), 'Resources')]")
+    private WebElement resourcesMenu;
+
+    @FindBy(css = "a[href*='compare']")
+    private WebElement compareLink;
 
     public HomePage(WebDriver driver) {
         super(driver);
@@ -40,13 +42,12 @@ public class HomePage extends BasePage {
     public ComparePage navigateToComparePage() {
         try {
             Actions actions = new Actions(driver);
-            actions.moveToElement(waits.visibilityOfElementLocated(resourcesMenu)).perform();
-            waits.visibilityOfElementLocated(compareLink);
+            actions.moveToElement(waits.visibilityOf(resourcesMenu)).perform();
+            waits.visibilityOf(compareLink);
             waits.elementToBeClickable(compareLink).click();
         } catch (Exception e) {
             try {
-                WebElement link = driver.findElement(compareLink);
-                jsUtils.click(link);
+                jsUtils.click(compareLink);
             } catch (Exception ex) {
                 throw e;
             }
